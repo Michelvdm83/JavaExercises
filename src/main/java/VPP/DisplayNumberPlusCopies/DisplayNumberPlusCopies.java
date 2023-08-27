@@ -7,7 +7,7 @@ public class DisplayNumberPlusCopies {
         Scanner in = new Scanner(System.in);
         System.out.print("Input number: ");
         int number = in.nextInt();
-        System.out.printf("%d + %<d%<d + %<d%<d%<d", number);
+        System.out.printf("%d + %<d%<d + %<d%<d%<d\n", number);
     }
 }
 /*
