@@ -1,4 +1,4 @@
-package VPP;
+package VPP.TheMakingOfAProgrammer;
 
 public class TheMakingOfAProgrammer {
     public static void main(String[] args){
