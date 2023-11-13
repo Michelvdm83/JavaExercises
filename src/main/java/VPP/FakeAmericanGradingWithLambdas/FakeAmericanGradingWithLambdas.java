@@ -15,6 +15,7 @@ public class FakeAmericanGradingWithLambdas {
         if(score < 0 || score > 100) System.out.println("Not a legal score");
         Map<Integer, Character> grading =
                 Map.of(80, 'A', 60, 'B', 50, 'C', 45, 'D', 25, 'E', 0, 'F');
+
     }
 }
 /*
