@@ -4,15 +4,18 @@ import java.util.ArrayList;
 
 public class DivisibleByThreeOrFive {
     public static void main(String[] args){
+        //make 3 lists for the requested prints
         ArrayList<Integer> divisible3 = new ArrayList<>();
         ArrayList<Integer> divisible5 = new ArrayList<>();
         //lijst aangepast naar String, zoals in voorbeeld van VPP
         ArrayList<String> divisible3And5 = new ArrayList<>();
+        //fill the lists with the correct numbers
         for(int i = 1; i < 100; i++){
             if(i%3 == 0)divisible3.add(i);
             if(i%5 == 0)divisible5.add(i);
             if(i%3 == 0 && i%5 == 0)divisible3And5.add("" + i);
         }
+        //print the lists
         System.out.println("Divisible by 3:");
         divisible3.forEach(i -> System.out.print(i + ", "));
         System.out.println("\n\nDivisible by 5:");
