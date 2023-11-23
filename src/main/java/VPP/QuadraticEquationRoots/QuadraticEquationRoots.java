@@ -19,6 +19,7 @@ public class QuadraticEquationRoots {
             //here should be the calculations for imaginary roots
             System.out.println("These coefficients don't have real roots");
         }
+        //if the calculation results in 0 there is actually only 1 root
         else{
             System.out.println("The roots are real and distinct.");
             // -b (+/-) sqrt(pow(b)-4ac / 2a
