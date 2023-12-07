@@ -66,6 +66,7 @@ public class TicTacToe {
             }
             if(!emptySpaceLeft)break;
         }
+        showCurrentBoard();
         if(!xWon && !oWon){
             System.out.println("Board is full without a winner.");
             System.out.println("Well played! It's a draw!");
