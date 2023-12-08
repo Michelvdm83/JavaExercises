@@ -57,8 +57,6 @@ interface RobotCommand2 {
 class OnCommand2 implements RobotCommand2{
     public void run(Robot robot){
         robot.setPowered(true);
-        robot.setX(0);
-        robot.setY(0);
     }
 }
 class OffCommand2 implements RobotCommand2{
