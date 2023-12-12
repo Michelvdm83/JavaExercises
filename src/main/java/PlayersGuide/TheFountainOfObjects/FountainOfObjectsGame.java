@@ -30,7 +30,7 @@ enum RoomType {
 }
 
 public class FountainOfObjectsGame {
-    //private final String[] COMMANDS = {"move north", "move south", "move east", "move west", "enable fountain"};
+    //private Map<Coordinate, RoomType> fieldTry = new HashMap<>();
     private RoomType[][] field;
     private boolean fountainActivated = false;
     boolean playerWins = false, playerLoses = false;
@@ -60,18 +60,7 @@ public class FountainOfObjectsGame {
         System.out.println("But there is a darkness in the cave impenetrable by any light!");
         System.out.println("Get to the " + FOUNTAIN + "Fountain of Objects" + NARRATIVE + "\n, activate it");
         System.out.println("and escape the cave to win!");
-        /*
-        If you chose to do the Pits challenge, add the following to the description: “Look out for pits. You
-will feel a breeze if a pit is in an adjacent room. If you enter a room with a pit, you will die.”
-If you chose to do the Maelstroms challenge, add the following to the description: “Maelstroms are
-violent forces of sentient wind. Entering a room with one could transport you to any other location
-in the caverns. You will be able to hear their growling and groaning in nearby rooms.”
-If you chose to do the Amaroks challenge, add the following to the description: “Amaroks roam the
-caverns. Encountering one is certain death, but you can smell their rotten stench in nearby rooms.”
-If you chose to do the Getting Armed challenge, add the following to the description: “You carry with
-you a bow and a quiver of arrows. You can use them to shoot monsters in the caverns but be warned:
-you have a limited supply.”
-         */
+
         System.out.println("""
                 Look out for pits. You will feel a breeze if a pit is in an adjacent room.
                 If you enter a room with a pit, you will die.
@@ -96,7 +85,13 @@ you have a limited supply.”
                     3. Large  (8 x 8)
                     4. Help""");
             System.out.print("Your choice: ");
-            int choice = Integer.parseInt(input.nextLine());
+            int choice;
+            try {
+                choice = Integer.parseInt(input.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Please only enter a decimal number!");
+                continue;
+            }
             switch (choice) {
                 case 1 -> createField(4);
                 case 2 -> createField(6);
@@ -165,7 +160,17 @@ you have a limited supply.”
                 }
             }
         }
-        //possibly doable with a map for the different number of special rooms
+
+        //in hindsight this could have worked pretty well
+/*        fieldTry.put(fountainLocation, RoomType.FOUNTAIN);
+        fieldTry.put(ENTRANCE_LOCATION, RoomType.ENTRANCE);
+        for(int i = 0; i < sizeOfSide; i++){
+            for(int j = 0; j < sizeOfSide; j++){
+                Coordinate current = new Coordinate(i, j);
+                if (!fieldTry.containsKey(current))fieldTry.put(current, RoomType.EMPTY);
+            }
+        }
+*/
         int numberOfPits;
         int numberOfMaelstrom;
         int numberOfAmaroks;
