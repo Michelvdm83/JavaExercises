@@ -2,6 +2,8 @@ package PlayersGuide.TheFountainOfObjects;
 
 import PlayersGuide.AnsiColors.AnsiColors;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -36,6 +38,7 @@ public class FountainOfObjectsGame {
     boolean playerWins = false, playerLoses = false;
     private Coordinate currentLocation;
     private int numberOfArrows = 5;
+    private LocalDateTime startMoment;
 
     private final Coordinate ENTRANCE_LOCATION = new Coordinate(0, 0);
     private Coordinate fountainLocation;// = new Coordinate(0, 2);
@@ -105,9 +108,11 @@ public class FountainOfObjectsGame {
                 }
             }
             System.out.println("Your choice was: " + field.length + " x " + field.length);
+            System.out.println(fountainLocation);
             break;
         }
         currentLocation = new Coordinate(0, 0);
+        startMoment = LocalDateTime.now();
 
         checkRoom(currentLocation);
         while (playerWins == playerLoses) {
@@ -124,7 +129,13 @@ public class FountainOfObjectsGame {
             checkRoom(currentLocation);
             //if(!(playerWins || playerLoses))System.out.print("What do you want to do? ");
         }
-
+        LocalDateTime finishMoment = LocalDateTime.now();
+        int hours = Duration.between(startMoment, finishMoment).toHoursPart();
+        int minutes = Duration.between(startMoment, finishMoment).toMinutesPart();
+        int seconds = Duration.between(startMoment, finishMoment).toSecondsPart();
+        System.out.print("You've been inside the cave for ");
+        if (hours > 0) System.out.print(hours + " hours, ");
+        System.out.println(minutes + " minutes and " + seconds + " seconds");
     }
 
     public void showHelp() {
