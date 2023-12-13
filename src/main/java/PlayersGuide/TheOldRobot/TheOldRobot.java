@@ -3,7 +3,7 @@ package PlayersGuide.TheOldRobot;
 import java.util.Scanner;
 
 public class TheOldRobot {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         Robot robot = new Robot();
         System.out.println("please enter your 3 commands for your robot:");
@@ -15,22 +15,22 @@ public class TheOldRobot {
                 SOUTH
                 WEST
                 OFF""");
-        for(int i = 1; i <= robot.getNumberOfCommands(); i++){
-            System.out.print("command " + i + ": ");
+        boolean addingCommands = true;
+        while (addingCommands) {
+            System.out.print("Please enter a command: ");
             String command = input.next().toUpperCase();
-            switch(command){
-                case "ON"    -> robot.setCommands(new OnCommand2(), i);
-                case "OFF"   -> robot.setCommands(new OffCommand2(), i);
-                case "NORTH" -> robot.setCommands(new NorthCommand2(), i);
-                case "SOUTH" -> robot.setCommands(new SouthCommand2(), i);
-                case "EAST"  -> robot.setCommands(new EastCommand2(), i);
-                case "WEST"  -> robot.setCommands(new WestCommand2(), i);
-                default      -> {
-                    System.out.println("wrong command, please try again.");
-                    i--;
-                }
+            switch (command) {
+                case "ON" -> robot.addCommand(new OnCommand());
+                case "OFF" -> robot.addCommand(new OffCommand());
+                case "NORTH" -> robot.addCommand(new NorthCommand());
+                case "SOUTH" -> robot.addCommand(new SouthCommand());
+                case "EAST" -> robot.addCommand(new EastCommand());
+                case "WEST" -> robot.addCommand(new WestCommand());
+                case "STOP" -> addingCommands = false;
+                default -> System.out.println("wrong command, please try again.");
             }
         }
+        System.out.printf("You've entered %d commands", robot.getNumberOfCommands());
         robot.run();
     }
 }

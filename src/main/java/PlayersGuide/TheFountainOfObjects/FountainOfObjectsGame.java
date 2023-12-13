@@ -77,7 +77,7 @@ public class FountainOfObjectsGame {
                 """);
         System.out.println("You carry with you a bow and a quiver of arrows.\n" +
                 "You can use them to shoot monsters in the caverns but be warned:\n" +
-                "you have a limited supply of: " + numberOfArrows + "arrows." + RESET);
+                "you have a limited supply of: " + numberOfArrows + " arrows." + RESET);
 
         while (true) {
             System.out.println("Please choose from the options below: ");
