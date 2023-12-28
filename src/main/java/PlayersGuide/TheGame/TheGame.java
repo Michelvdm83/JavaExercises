@@ -166,14 +166,14 @@ public class TheGame {
                             continue;
                         }
                     }
-                    if (c.getWeapon() == null) {
-                        if (player.getInventory().contains(Weapon.DAGGER)) {
-                            double chance = Math.random();
-                            if (chance <= 0.50) {
-                                performAction(player, c, BasicAction.EQUIP_GEAR);
-                                System.out.println();
-                                continue;
-                            }
+                }
+                if (options.contains(BasicAction.EQUIP_GEAR)) {
+                    if (player.getInventory().contains(Weapon.DAGGER)) {
+                        double chance = Math.random();
+                        if (chance <= 0.50) {
+                            performAction(player, c, BasicAction.EQUIP_GEAR);
+                            System.out.println();
+                            continue;
                         }
                     }
                 }
@@ -202,9 +202,29 @@ public class TheGame {
                 }
             }
         } else if (action.equals(BasicAction.USE_ITEM)) {
-            player.letMemberUsePotion(character, Potion.HEALTH_POTION);
+            if (player.getPlayerType() == PlayerType.AI) {
+                player.letMemberUsePotion(character, Potion.HEALTH_POTION);
+            } else {
+                List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Potion.class).toList();
+                ArrayList<String> options = new ArrayList<>();
+                for (Item i : filteredInventory) {
+                    options.add(i.toString());
+                }
+                int choice = createMenuAndAskInput(options);
+                player.letMemberUsePotion(character, (Potion) filteredInventory.get(choice));
+            }
         } else if (action.equals(BasicAction.EQUIP_GEAR)) {
-            player.equipToMember(character, Weapon.DAGGER);
+            if (player.getPlayerType() == PlayerType.AI) {
+                player.equipToMember(character, Weapon.DAGGER);
+            } else {
+                List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Weapon.class).toList();
+                ArrayList<String> options = new ArrayList<>();
+                for (Item i : filteredInventory) {
+                    options.add(i.toString());
+                }
+                int choice = createMenuAndAskInput(options);
+                player.equipToMember(character, (Weapon) filteredInventory.get(choice));
+            }
         }
     }
 
