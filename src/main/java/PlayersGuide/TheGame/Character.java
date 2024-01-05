@@ -5,8 +5,10 @@ public class Character {
     private final CharacterType TYPE;
     private final int MAX_HP;
     private final AttackAction STANDARD_ATTACK;
+    private DefensiveBuff defensiveBuff;
+    private DamageType vulnerability;
     private int currentHP;
-    private Weapon weapon = null;
+    private Weapon weapon;
 
     public Character(String name, CharacterType type) {
         NAME = name;
@@ -14,26 +16,32 @@ public class Character {
         MAX_HP = type.getMAX_HP();
         STANDARD_ATTACK = type.getSTANDARD_ATTACK();
         currentHP = MAX_HP;
-        if (type == CharacterType.TRUE_PROGRAMMER) weapon = Weapon.SWORD;
-    }
-
-    public static Character createSkeleton(int numberInName) {
-        String newName = "SKELETON".concat(" " + numberInName);
-        return new Character(newName, CharacterType.SKELETON);
+        weapon = switch (type) {
+            case TRUE_PROGRAMMER -> Weapon.SWORD;
+            case VIN_FLETCHER -> Weapon.VINS_BOW;
+            default -> null;
+        };
+        defensiveBuff = switch (type) {
+            case STONE_AMAROK -> DefensiveBuff.STONE_ARMOR;
+            case TRUE_PROGRAMMER -> DefensiveBuff.OBJECT_SIGHT;
+            default -> null;
+        };
+        vulnerability = switch (type) {
+            case THE_UNCODED_ONE -> DamageType.CODING;
+            default -> null;
+        };
     }
 
     public void doNothing() {
         System.out.println(NAME + " did NOTHING.");
     }
 
-    public void useItem(Potion item) {
-        item.useOn(this);
+    public void usePotion(Potion potion) {
+        potion.useOn(this);
     }
 
-    public Weapon equipWeapon(Weapon weapon) {
-        Weapon returnWeapon = this.weapon;
+    public void equipWeapon(Weapon weapon) {
         this.weapon = weapon;
-        return returnWeapon;
     }
 
     public void getHealed(int healingAmount) {
@@ -48,24 +56,63 @@ public class Character {
     }
 
     public void attack(Character opponent) {
-        int damage = STANDARD_ATTACK.calculateDMG();
-        System.out.println(NAME + " used " + STANDARD_ATTACK + " on " + opponent.getNAME() + "!");
-        System.out.println(STANDARD_ATTACK + " dealt " + damage + " damage to " + opponent.getNAME());
-        opponent.getHit(damage);
+        if (hasAttackHit(STANDARD_ATTACK)) {
+            int damage = STANDARD_ATTACK.calculateDMG();
+            DamageType damageType = STANDARD_ATTACK.getDAMAGE_TYPE();
+            System.out.println(NAME + " used " + STANDARD_ATTACK + " on " + opponent.getNAME() + "!");
+            int finalDamage = opponent.getHit(damage, damageType);
+            System.out.println(STANDARD_ATTACK + " dealt " + finalDamage + " damage to " + opponent.getNAME());
+            opponent.showHP();
+        } else {
+            System.out.println(NAME + " missed!");
+        }
     }
 
     public void weaponAttack(Character opponent) {
         if (weapon != null) {
-            int damage = weapon.getAttackAction().calculateDMG();
-            System.out.println(NAME + " attacked " + opponent.getNAME() + " with his " + weapon + "!");
-            System.out.println("His " + weapon.getAttackAction() + " attack " + " dealt " + damage + " damage to " + opponent.getNAME());
-            opponent.getHit(damage);
+            AttackAction attack = weapon.getAttackAction();
+            DamageType damageType = attack.getDAMAGE_TYPE();
+            if (hasAttackHit(attack)) {
+                int damage = attack.calculateDMG();
+                System.out.println(NAME + " attacked " + opponent.getNAME() + " with his " + weapon + "!");
+                int finalDamage = opponent.getHit(damage, damageType);
+                System.out.println(NAME + "'s " + attack + " attack " + " dealt " + finalDamage + " damage to " + opponent.getNAME());
+                opponent.showHP();
+            } else {
+                System.out.println(NAME + " missed!");
+            }
         }
     }
 
-    public void getHit(int damage) {
-        currentHP -= damage;
+    private boolean hasAttackHit(AttackAction attack) {
+        return attack.attackHit();
+    }
+
+    public int getHit(int initialDamage, DamageType damageType) {
+        if (initialDamage == 0) return initialDamage;
+        int finalDamage = initialDamage;
+        if (defensiveBuff != null) {
+            if (defensiveBuff.isResistantTo(damageType)) {
+                int damageReduction = defensiveBuff.getDAMAGE_REDUCTION();
+                if (damageReduction > initialDamage) {
+                    damageReduction = initialDamage;
+                }
+                finalDamage = initialDamage - damageReduction;
+                System.out.println(defensiveBuff + " reduced the Damage by " + damageReduction);
+            }
+        }
+        if (vulnerability != null) {
+            if (vulnerability == damageType) {
+                finalDamage++;
+                System.out.println(NAME + " is vulnerable to " + damageType + " damage!");
+            }
+        }
+        currentHP -= finalDamage;
         if (currentHP < 0) currentHP = 0;
+        return finalDamage;
+    }
+
+    public void showHP() {
         System.out.printf("%s is now at %d/%d HP%n", NAME, currentHP, MAX_HP);
     }
 
@@ -90,8 +137,3 @@ public class Character {
     }
 }
 
-class TrueProgrammer extends Character {
-    public TrueProgrammer(String name) {
-        super(name, CharacterType.TRUE_PROGRAMMER);
-    }
-}

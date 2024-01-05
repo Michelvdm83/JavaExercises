@@ -2,7 +2,9 @@ package PlayersGuide.TheGame;
 
 public enum CharacterType {
     TRUE_PROGRAMMER(25, AttackAction.PUNCH),
+    VIN_FLETCHER(15, AttackAction.PUNCH),
     SKELETON(5, AttackAction.BONE_CRUNCH),
+    STONE_AMAROK(4, AttackAction.BITE),
     THE_UNCODED_ONE(15, AttackAction.DECODE);
 
     CharacterType(final int MAX_HP, final AttackAction STANDARD_ATTACK) {

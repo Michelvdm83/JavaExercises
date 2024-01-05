@@ -2,11 +2,12 @@ package PlayersGuide.TheGame;
 
 public enum Weapon implements Item {
     DAGGER(AttackAction.STAB),
+    VINS_BOW(AttackAction.QUICK_SHOT),
     SWORD(AttackAction.SLASH);
 
 
     //private int turnsUsed = 0;
-    private final ItemType TYPE = ItemType.GEAR;
+    private final ItemType TYPE = ItemType.WEAPON;
     private final AttackAction attackAction;
 
     Weapon(AttackAction attackAction) {
@@ -20,5 +21,10 @@ public enum Weapon implements Item {
 
     public AttackAction getAttackAction() {
         return attackAction;
+    }
+
+    public String toString() {
+        if (this == VINS_BOW) return "VIN'S BOW";
+        return super.toString();
     }
 }

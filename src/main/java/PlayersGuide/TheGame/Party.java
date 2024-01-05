@@ -1,19 +1,23 @@
 package PlayersGuide.TheGame;
 
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
 public class Party {
     private final String NAME;
-    private final PlayerType playerType;
+    private PlayerType playerType = PlayerType.AI;
     private final List<Character> TEAM = new ArrayList<>();
     private final List<Item> INVENTORY = new ArrayList<>();
     private boolean potionInInventory = false;
     private boolean gearInInventory = false;
 
-    public Party(String name, PlayerType playerType) {
+    public Party(String name) {
         NAME = name;
+    }
+
+    public void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
     }
 
@@ -28,7 +32,7 @@ public class Party {
     public void letMemberUsePotion(Character character, Potion potion) {
         if (TEAM.contains(character)) {
             if (INVENTORY.remove(potion)) {
-                character.useItem(potion);
+                character.usePotion(potion);
                 potionInInventory = false;
                 for (Item item : INVENTORY) {
                     if (item.getItemType() == ItemType.POTION) {
@@ -43,13 +47,14 @@ public class Party {
     public void equipToMember(Character character, Weapon weapon) {
         if (TEAM.contains(character)) {
             if (INVENTORY.remove(weapon)) {
-                Weapon characterWeapon = character.equipWeapon(weapon);
+                Weapon characterWeapon = character.getWeapon();
                 if (characterWeapon != null) {
                     INVENTORY.add(characterWeapon);
                 }
+                character.equipWeapon(weapon);
                 gearInInventory = false;
                 for (Item item : INVENTORY) {
-                    if (item.getItemType() == ItemType.GEAR) {
+                    if (item.getItemType() == ItemType.WEAPON) {
                         gearInInventory = true;
                         break;
                     }
@@ -60,7 +65,7 @@ public class Party {
 
     public void addToInventory(Item item) {
         if (item.getItemType() == ItemType.POTION) potionInInventory = true;
-        if (item.getItemType() == ItemType.GEAR) gearInInventory = true;
+        if (item.getItemType() == ItemType.WEAPON) gearInInventory = true;
         INVENTORY.add(item);
     }
 
@@ -78,6 +83,14 @@ public class Party {
         if (!gearInInventory) options.remove(BasicAction.EQUIP_GEAR);
         if (character.getWeapon() == null) options.remove(BasicAction.WEAPON_ATTACK);
         return options;
+    }
+
+    public boolean hasPotionInInventory() {
+        return potionInInventory;
+    }
+
+    public boolean hasGearInInventory() {
+        return gearInInventory;
     }
 
     public PlayerType getPlayerType() {

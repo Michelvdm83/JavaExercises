@@ -2,12 +2,15 @@ package PlayersGuide.TheGame;
 
 import PlayersGuide.AnsiColors.AnsiColors;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class TheGame {
     private Party HEROES;
     private Party MONSTERS;
-    private final Party[] monsterTeams;
+    private final List<Party> monsterList = new ArrayList<>();
     private int numberOfMonsterTeamsLeft;
     private final int TOTAL_NUMBER_OF_MONSTER_TEAMS;
     private final Scanner input = new Scanner(System.in);
@@ -19,9 +22,72 @@ public class TheGame {
     }
 
     public TheGame() {
-        numberOfMonsterTeamsLeft = 3;
+        createOpponents();
+        numberOfMonsterTeamsLeft = monsterList.size();
         TOTAL_NUMBER_OF_MONSTER_TEAMS = numberOfMonsterTeamsLeft;
-        monsterTeams = new Party[TOTAL_NUMBER_OF_MONSTER_TEAMS];
+    }
+
+    private void createOpponents() {
+        //file format:
+        /*
+        Teamname
+        nrOfItems
+        items: ItemType Item
+        nrOfMembers
+        members: Name Type Weapon
+         */
+        Path filePath = Path.of("src/main/java/PlayersGuide/TheGame/Opponents.txt");
+
+        System.out.println(filePath);
+        try {
+            //read the entire file
+            LinkedList<String> fileLines = new LinkedList<>(Files.readAllLines(filePath));
+
+            //while there are more lines available, create new teams
+            while (!fileLines.isEmpty()) {
+                LinkedList<String> partyText = new LinkedList<>();
+                String s = fileLines.removeFirst();
+                while (!s.isEmpty()) {
+                    partyText.add(s);
+                    s = fileLines.removeFirst();
+                }
+                String partyName = partyText.removeFirst();
+                Party party = new Party(partyName);
+                int nrOfItems = Integer.parseInt(partyText.removeFirst());
+                for (int i = 0; i < nrOfItems; i++) {
+                    String[] itemLine = partyText.removeFirst().split(" ");
+                    ItemType type = ItemType.valueOf(itemLine[0]);
+
+                    Item item = switch (type) {
+                        case POTION -> Potion.valueOf(itemLine[1]);
+                        case WEAPON -> Weapon.valueOf(itemLine[1]);
+                    };
+                    party.addToInventory(item);
+                }
+                int nrOfMembers = Integer.parseInt(partyText.removeFirst());
+                for (int j = 0; j < nrOfMembers; j++) {
+                    String[] memberLine = partyText.removeFirst().split(" ");
+                    String memberName = memberLine[0];
+                    CharacterType type = CharacterType.valueOf(memberLine[1]);
+                    Character member = new Character(memberName, type);
+                    try {
+                        Weapon weapon = Weapon.valueOf(memberLine[2]);
+                        member.equipWeapon(weapon);
+                        System.out.println(memberLine[2] + " is a weapon");
+                    } catch (Exception e) {
+                        System.out.println(memberLine[2] + " is no weapon");
+                    }
+                    party.addCharacterToTeam(member);
+                }
+                monsterList.add(party);
+            }
+
+        } catch (IOException e) {
+            System.out.println("loading levels has failed!");
+            e.printStackTrace(System.out);
+            System.exit(0);
+        }
+
     }
 
     public void run() {
@@ -36,25 +102,37 @@ public class TheGame {
             case 2 -> new PlayerType[]{PlayerType.HUMAN, PlayerType.HUMAN};
             default -> new PlayerType[]{PlayerType.AI, PlayerType.HUMAN};
         };
-        HEROES = new Party("The Hero", playerTypes[0]);
+        HEROES = new Party("The Heroes");
+        HEROES.setPlayerType(playerTypes[0]);
+
         for (int i = 0; i < TOTAL_NUMBER_OF_MONSTER_TEAMS; i++) {
-            monsterTeams[i] = createNewMonsterTeam(TOTAL_NUMBER_OF_MONSTER_TEAMS - i, playerTypes[1]);
+            monsterList.get(i).setPlayerType(playerTypes[1]);
         }
-        MONSTERS = monsterTeams[0];
+        MONSTERS = monsterList.get(0);
 
         System.out.print("Please enter the True Programmer's character name: ");
         String programmerName = input.nextLine();
-        TrueProgrammer trueProgrammer = new TrueProgrammer(programmerName);
+        Character trueProgrammer = new Character(programmerName, CharacterType.TRUE_PROGRAMMER);
         HEROES.addCharacterToTeam(trueProgrammer);
+        HEROES.addCharacterToTeam(new Character("Vin Fletcher", CharacterType.VIN_FLETCHER));
         HEROES.addToInventory(Potion.HEALTH_POTION);
         HEROES.addToInventory(Potion.HEALTH_POTION);
         HEROES.addToInventory(Potion.HEALTH_POTION);
+
 
         Party winner;
         while (true) {
             playerActions(HEROES);
             if (MONSTERS.getTEAM().isEmpty()) {
                 System.out.println("The Heroes won this battle!");
+                List<Item> lootedInventory = MONSTERS.getInventory();
+                if (!lootedInventory.isEmpty()) {
+                    System.out.println("Loot:");
+                    for (Item item : lootedInventory) {
+                        HEROES.addToInventory(item);
+                        System.out.println(item.toString().replace("_", " "));
+                    }
+                }
                 if (numberOfMonsterTeamsLeft > 0) {
                     numberOfMonsterTeamsLeft--;
                 }
@@ -63,7 +141,7 @@ public class TheGame {
                     break;
                 } else {
                     System.out.println("More enemies approaching!");
-                    MONSTERS = monsterTeams[TOTAL_NUMBER_OF_MONSTER_TEAMS - numberOfMonsterTeamsLeft];
+                    MONSTERS = monsterList.get(TOTAL_NUMBER_OF_MONSTER_TEAMS - numberOfMonsterTeamsLeft);
                     continue;
                 }
             }
@@ -78,25 +156,6 @@ public class TheGame {
         } else {
             System.out.printf("The heroes have lost! %s's forces have prevailed!", MONSTERS.getNAME());
         }
-    }
-
-    private Party createNewMonsterTeam(int teamsLeft, PlayerType playerType) {
-        Party returnParty = new Party("The Uncoded One", playerType);
-        if (teamsLeft == 1) {
-            returnParty.addCharacterToTeam(new Character("The Uncoded One", CharacterType.THE_UNCODED_ONE));
-        } else {
-            int numberOfMonsters = TOTAL_NUMBER_OF_MONSTER_TEAMS + 1 - teamsLeft;
-            for (int i = 1; i <= numberOfMonsters; i++) {
-                returnParty.addCharacterToTeam(Character.createSkeleton(i));
-            }
-            if (numberOfMonsters == 1) returnParty.getTEAM().get(0).equipWeapon(Weapon.DAGGER);
-            if (numberOfMonsters == 2) {
-                returnParty.addToInventory(Weapon.DAGGER);
-                returnParty.addToInventory(Weapon.DAGGER);
-            }
-        }
-        returnParty.addToInventory(Potion.HEALTH_POTION);
-        return returnParty;
     }
 
     private int createMenuAndAskInput(ArrayList<String> options) {
@@ -143,6 +202,10 @@ public class TheGame {
         Collection<Character> team = player.getTEAM();
         System.out.println(player.getNAME() + "'s team has it's turns now");
         for (Character c : team) {
+            Party opposingPlayer = player.equals(HEROES) ? MONSTERS : HEROES;
+            if (opposingPlayer.getTEAM().isEmpty()) {
+                return;
+            }
             showBattleState(c);
             System.out.println("It's " + c.getNAME() + "'s turn.");
             EnumSet<BasicAction> options = player.getPossibleActionsForMember(c);
@@ -158,7 +221,7 @@ public class TheGame {
                 //getAIAction?
                 if (options.contains(BasicAction.USE_ITEM)) {
                     double hpPercentage = (double) c.getCurrentHP() / c.getMAX_HP();
-                    if (hpPercentage < 0.5) {
+                    if (player.hasPotionInInventory() && hpPercentage < 0.5) {
                         double chance = Math.random();
                         if (chance <= 0.25) {
                             performAction(player, c, BasicAction.USE_ITEM);
@@ -168,7 +231,7 @@ public class TheGame {
                     }
                 }
                 if (options.contains(BasicAction.EQUIP_GEAR)) {
-                    if (player.getInventory().contains(Weapon.DAGGER)) {
+                    if (player.hasGearInInventory() && c.getWeapon() == null) {
                         double chance = Math.random();
                         if (chance <= 0.50) {
                             performAction(player, c, BasicAction.EQUIP_GEAR);
@@ -197,34 +260,47 @@ public class TheGame {
                 Party opposingPlayer = player.equals(HEROES) ? MONSTERS : HEROES;
                 if (opposingPlayer.removeCharacterFromTeam(opponent)) {
                     System.out.println(opponent.getNAME() + " has been defeated!");
+                    Weapon opponentWeapon = opponent.getWeapon();
+                    if (opponentWeapon != null) {
+                        player.addToInventory(opponentWeapon);
+                        System.out.println(player.getNAME() + " looted " + opponentWeapon);
+                    }
                 } else {
                     System.out.println(opponent.getNAME() + " isn't part of " + opposingPlayer.getNAME() + "'s team");
                 }
             }
         } else if (action.equals(BasicAction.USE_ITEM)) {
+            Potion potionUsed;
+            List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Potion.class).toList();
             if (player.getPlayerType() == PlayerType.AI) {
-                player.letMemberUsePotion(character, Potion.HEALTH_POTION);
+                potionUsed = (Potion) filteredInventory.get(0);
+                player.letMemberUsePotion(character, potionUsed);
             } else {
-                List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Potion.class).toList();
                 ArrayList<String> options = new ArrayList<>();
                 for (Item i : filteredInventory) {
                     options.add(i.toString());
                 }
                 int choice = createMenuAndAskInput(options);
-                player.letMemberUsePotion(character, (Potion) filteredInventory.get(choice));
+                potionUsed = (Potion) filteredInventory.get(choice);
+                player.letMemberUsePotion(character, potionUsed);
             }
+            System.out.println(potionUsed.toString() + " was used");
         } else if (action.equals(BasicAction.EQUIP_GEAR)) {
+            Weapon weaponEquipped;
+            List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Weapon.class).toList();
             if (player.getPlayerType() == PlayerType.AI) {
-                player.equipToMember(character, Weapon.DAGGER);
+                weaponEquipped = (Weapon) filteredInventory.get(0);
+                player.equipToMember(character, weaponEquipped);
             } else {
-                List<Item> filteredInventory = player.getInventory().stream().filter(item -> item.getClass() == Weapon.class).toList();
                 ArrayList<String> options = new ArrayList<>();
                 for (Item i : filteredInventory) {
                     options.add(i.toString());
                 }
                 int choice = createMenuAndAskInput(options);
-                player.equipToMember(character, (Weapon) filteredInventory.get(choice));
+                weaponEquipped = (Weapon) filteredInventory.get(choice);
+                player.equipToMember(character, weaponEquipped);
             }
+            System.out.println(character.getNAME() + " has equipped " + weaponEquipped.toString());
         }
     }
 
