@@ -3,10 +3,10 @@ package PlayersGuide.TheGame;
 import java.util.Random;
 
 public enum AttackAction {
-    PUNCH(1, 1, 100, DamageType.NORMAL),
+    PUNCH(1, 1, 100, DamageType.CODING),
     BONE_CRUNCH(0, 1, 100, DamageType.NORMAL),
     BITE(1, 1, 100, DamageType.NORMAL),
-    DECODE(0, 4, 100, DamageType.DECODING),
+    DECODE(1, 4, 100, DamageType.DECODING),
     QUICK_SHOT(3, 3, 50, DamageType.NORMAL),
     STAB(1, 1, 90, DamageType.NORMAL),
     SLASH(2, 2, 90, DamageType.NORMAL);

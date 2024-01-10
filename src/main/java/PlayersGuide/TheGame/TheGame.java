@@ -32,13 +32,12 @@ public class TheGame {
         /*
         Teamname
         nrOfItems
-        items: ItemType Item
+        items: ItemType-Item
         nrOfMembers
-        members: Name Type Weapon
+        members: Name-CharacterType-Weapon
          */
         Path filePath = Path.of("src/main/java/PlayersGuide/TheGame/Opponents.txt");
 
-        System.out.println(filePath);
         try {
             //read the entire file
             LinkedList<String> fileLines = new LinkedList<>(Files.readAllLines(filePath));
@@ -55,7 +54,7 @@ public class TheGame {
                 Party party = new Party(partyName);
                 int nrOfItems = Integer.parseInt(partyText.removeFirst());
                 for (int i = 0; i < nrOfItems; i++) {
-                    String[] itemLine = partyText.removeFirst().split(" ");
+                    String[] itemLine = partyText.removeFirst().split("-");
                     ItemType type = ItemType.valueOf(itemLine[0]);
 
                     Item item = switch (type) {
@@ -66,16 +65,13 @@ public class TheGame {
                 }
                 int nrOfMembers = Integer.parseInt(partyText.removeFirst());
                 for (int j = 0; j < nrOfMembers; j++) {
-                    String[] memberLine = partyText.removeFirst().split(" ");
+                    String[] memberLine = partyText.removeFirst().split("-");
                     String memberName = memberLine[0];
                     CharacterType type = CharacterType.valueOf(memberLine[1]);
                     Character member = new Character(memberName, type);
-                    try {
+                    if (!memberLine[2].equals("null")) {
                         Weapon weapon = Weapon.valueOf(memberLine[2]);
                         member.equipWeapon(weapon);
-                        System.out.println(memberLine[2] + " is a weapon");
-                    } catch (Exception e) {
-                        System.out.println(memberLine[2] + " is no weapon");
                     }
                     party.addCharacterToTeam(member);
                 }
@@ -108,7 +104,7 @@ public class TheGame {
         for (int i = 0; i < TOTAL_NUMBER_OF_MONSTER_TEAMS; i++) {
             monsterList.get(i).setPlayerType(playerTypes[1]);
         }
-        MONSTERS = monsterList.get(0);
+        MONSTERS = new Party(monsterList.get(0));
 
         System.out.print("Please enter the True Programmer's character name: ");
         String programmerName = input.nextLine();
@@ -132,6 +128,7 @@ public class TheGame {
                         HEROES.addToInventory(item);
                         System.out.println(item.toString().replace("_", " "));
                     }
+                    lootedInventory.clear();
                 }
                 if (numberOfMonsterTeamsLeft > 0) {
                     numberOfMonsterTeamsLeft--;
@@ -141,7 +138,7 @@ public class TheGame {
                     break;
                 } else {
                     System.out.println("More enemies approaching!");
-                    MONSTERS = monsterList.get(TOTAL_NUMBER_OF_MONSTER_TEAMS - numberOfMonsterTeamsLeft);
+                    MONSTERS = new Party(monsterList.get(TOTAL_NUMBER_OF_MONSTER_TEAMS - numberOfMonsterTeamsLeft));
                     continue;
                 }
             }
@@ -153,6 +150,7 @@ public class TheGame {
         }
         if (winner.equals(HEROES)) {
             System.out.printf("%s's party has defeated %s and his evil minions!%n", winner.getNAME(), MONSTERS.getNAME());
+            monsterList.forEach(p -> p.getInventory().forEach(i -> System.out.println(i.toString())));
         } else {
             System.out.printf("The heroes have lost! %s's forces have prevailed!", MONSTERS.getNAME());
         }
@@ -198,20 +196,20 @@ public class TheGame {
         return BasicAction.values()[choice];
     }
 
-    private void playerActions(Party player) {
-        Collection<Character> team = player.getTEAM();
-        System.out.println(player.getNAME() + "'s team has it's turns now");
+    private void playerActions(Party party) {
+        Collection<Character> team = party.getTEAM();
+        System.out.println(party.getNAME() + "'s team has it's turns now");
         for (Character c : team) {
-            Party opposingPlayer = player.equals(HEROES) ? MONSTERS : HEROES;
+            Party opposingPlayer = party.equals(HEROES) ? MONSTERS : HEROES;
             if (opposingPlayer.getTEAM().isEmpty()) {
                 return;
             }
             showBattleState(c);
             System.out.println("It's " + c.getNAME() + "'s turn.");
-            EnumSet<BasicAction> options = player.getPossibleActionsForMember(c);
-            if (player.getPlayerType() == PlayerType.HUMAN) {
+            EnumSet<BasicAction> options = party.getPossibleActionsForMember(c);
+            if (party.getPlayerType() == PlayerType.HUMAN) {
                 BasicAction currentAction = askForAction(c, options);
-                performAction(player, c, currentAction);
+                performAction(party, c, currentAction);
             } else {
                 try {
                     Thread.sleep(500);
@@ -221,28 +219,28 @@ public class TheGame {
                 //getAIAction?
                 if (options.contains(BasicAction.USE_ITEM)) {
                     double hpPercentage = (double) c.getCurrentHP() / c.getMAX_HP();
-                    if (player.hasPotionInInventory() && hpPercentage < 0.5) {
+                    if (party.hasPotionInInventory() && hpPercentage < 0.5) {
                         double chance = Math.random();
                         if (chance <= 0.25) {
-                            performAction(player, c, BasicAction.USE_ITEM);
+                            performAction(party, c, BasicAction.USE_ITEM);
                             System.out.println();
                             continue;
                         }
                     }
                 }
                 if (options.contains(BasicAction.EQUIP_GEAR)) {
-                    if (player.hasGearInInventory() && c.getWeapon() == null) {
+                    if (party.hasGearInInventory() && c.getWeapon() == null) {
                         double chance = Math.random();
                         if (chance <= 0.50) {
-                            performAction(player, c, BasicAction.EQUIP_GEAR);
+                            performAction(party, c, BasicAction.EQUIP_GEAR);
                             System.out.println();
                             continue;
                         }
                     }
                 }
                 if (c.getWeapon() != null) {
-                    performAction(player, c, BasicAction.WEAPON_ATTACK);
-                } else performAction(player, c, BasicAction.ATTACK);
+                    performAction(party, c, BasicAction.WEAPON_ATTACK);
+                } else performAction(party, c, BasicAction.ATTACK);
             }
             System.out.println();
         }
@@ -254,8 +252,9 @@ public class TheGame {
         } else if (action.equals(BasicAction.ATTACK) || action.equals(BasicAction.WEAPON_ATTACK)) {
             List<Character> opponentTeam = player.equals(HEROES) ? MONSTERS.getTEAM() : HEROES.getTEAM();
             Character opponent = opponentTeam.get(0);
-            if (action == BasicAction.ATTACK) character.attack(opponent);
-            if (action == BasicAction.WEAPON_ATTACK) character.weaponAttack(opponent);
+            System.out.println(character.attack(opponent, action == BasicAction.WEAPON_ATTACK));
+            //if (action == BasicAction.ATTACK) character.attack(opponent);
+            //if (action == BasicAction.WEAPON_ATTACK) character.weaponAttack(opponent);
             if (!opponent.isAlive()) {
                 Party opposingPlayer = player.equals(HEROES) ? MONSTERS : HEROES;
                 if (opposingPlayer.removeCharacterFromTeam(opponent)) {

@@ -17,6 +17,19 @@ public class Party {
         NAME = name;
     }
 
+    public Party(Party p) {
+        NAME = p.getNAME();
+        playerType = p.getPlayerType();
+        for (Character c : p.getTEAM()) {
+            Character newC = new Character(c.getNAME(), c.getTYPE());
+            newC.equipWeapon(c.getWeapon());
+            TEAM.add(newC);
+        }
+        for (Item item : p.getInventory()) {
+            this.addToInventory(item);
+        }
+    }
+
     public void setPlayerType(PlayerType playerType) {
         this.playerType = playerType;
     }

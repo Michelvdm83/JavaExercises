@@ -5,8 +5,8 @@ public class Character {
     private final CharacterType TYPE;
     private final int MAX_HP;
     private final AttackAction STANDARD_ATTACK;
-    private DefensiveBuff defensiveBuff;
-    private DamageType vulnerability;
+    private final DefensiveBuff defensiveBuff;
+    private final DamageType vulnerability;
     private int currentHP;
     private Weapon weapon;
 
@@ -28,6 +28,7 @@ public class Character {
         };
         vulnerability = switch (type) {
             case THE_UNCODED_ONE -> DamageType.CODING;
+            case VIN_FLETCHER -> DamageType.DECODING;
             default -> null;
         };
     }
@@ -53,6 +54,30 @@ public class Character {
 
     public AttackAction getAttackType() {
         return STANDARD_ATTACK;
+    }
+
+    public String attack(Character opponent, boolean withWeapon) {
+        StringBuilder returnString = new StringBuilder();
+        AttackAction attackAction = withWeapon ? weapon.getAttackAction() : STANDARD_ATTACK;
+        if (hasAttackHit(attackAction)) {
+            String attackString = withWeapon ? NAME + " attacked " + opponent.getNAME() + " with his/her " + weapon + "!"
+                    : NAME + " used " + STANDARD_ATTACK + " on " + opponent.getNAME() + "!";
+            returnString.append(attackString).append("\n");
+            int damage = attackAction.calculateDMG();
+            DamageType damageType = attackAction.getDAMAGE_TYPE();
+            int finalDamage = opponent.getHit(damage, damageType);
+            String damageString = NAME + "'s " + attackAction + " attack dealt " + finalDamage + " damage to " + opponent.getNAME() + "\n";
+            returnString.append(damageString);
+            returnString.append(opponent.tellCurrentHP());
+        } else {
+            returnString.append(NAME).append(" missed!\n");
+        }
+        return returnString.toString();
+    }
+
+    private String tellCurrentHP() {
+        //"%s is now at %d/%d HP%n", NAME, currentHP, MAX_HP
+        return NAME + " is now at " + currentHP + "/" + MAX_HP + "\n";
     }
 
     public void attack(Character opponent) {
@@ -134,6 +159,10 @@ public class Character {
 
     public Weapon getWeapon() {
         return weapon;
+    }
+
+    public CharacterType getTYPE() {
+        return TYPE;
     }
 }
 
