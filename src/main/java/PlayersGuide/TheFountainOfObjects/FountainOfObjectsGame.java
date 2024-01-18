@@ -52,7 +52,7 @@ public class FountainOfObjectsGame {
     private final Scanner input = new Scanner(System.in);
 
     public FountainOfObjectsGame() {
-
+        currentLocation = new Coordinate(0, 0);
     }
 
     public void run() {
@@ -111,11 +111,11 @@ public class FountainOfObjectsGame {
             System.out.println(fountainLocation);
             break;
         }
-        currentLocation = new Coordinate(0, 0);
         startMoment = LocalDateTime.now();
 
         checkRoom(currentLocation);
         while (playerWins == playerLoses) {
+            showCurrentPosition();
             System.out.println(DESCRIPTION + "You are in the room at " + currentLocation + "." + RESET);
             System.out.println(DESCRIPTION + "You have " + numberOfArrows + " arrows left." + RESET);
             System.out.print("What do you want to do? ");
@@ -210,6 +210,16 @@ public class FountainOfObjectsGame {
         setRandomRoomTypeLocations(RoomType.PIT, numberOfPits);
         setRandomRoomTypeLocations(RoomType.MAELSTROM, numberOfMaelstrom);
         setRandomRoomTypeLocations(RoomType.AMAROK, numberOfAmaroks);
+    }
+
+    private void showCurrentPosition() {
+        for (int i = field.length - 1; i >= 0; i--) {
+            for (int j = 0; j < field[i].length; j++) {
+                Coordinate current = new Coordinate(i, j);
+                System.out.print(current.equals(currentLocation) ? "[x]" : "[ ]");
+            }
+            System.out.println();
+        }
     }
 
     private void setRandomRoomTypeLocations(RoomType roomtype, int numberOfRooms) {
