@@ -1,5 +1,6 @@
 package PlayersGuide.BossBattleClass;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -15,15 +16,15 @@ public class BattleManticore {
     private final Scanner input;
     private boolean singlePlayer;
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_BLACK = "\u001B[30m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_PURPLE = "\u001B[35m";
+    private static final String ANSI_CYAN = "\u001B[36m";
+    private static final String ANSI_WHITE = "\u001B[37m";
 
     public BattleManticore(int cityMaxHP, int manticoreMaxHP, Scanner input) {
         CITY_MAX_HP = cityMaxHP;
@@ -48,14 +49,17 @@ public class BattleManticore {
             return random.nextInt(100);
         }
         System.out.print("Player 1, how far away from the city do you want to station the Manticore?(0-100) ");
-        int distance = input.nextInt();
-        while (distance < 0 || distance > 100) {
+        do {
+            int distance = input.nextInt();
+            if (0 < distance && distance <= 100) {
+                for (int i = 0; i < Toolkit.getDefaultToolkit().getScreenSize().height; i++) {
+                    System.out.println();
+                }
+                return distance;
+            }
             System.out.println("that is not within range");
             System.out.print("Please enter a new range (0-100): ");
-            distance = input.nextInt();
-        }
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        return distance;
+        } while (true);
     }
 
     private void battle(int distanceOfManticore) {
@@ -67,7 +71,7 @@ public class BattleManticore {
         } else {
             System.out.println("Player 2, it is your turn.");
         }
-        while (cityHP > 0) {
+        do {
             if (round % 3 == 0 && round % 5 == 0) damage = 10;
             else if (round % 3 == 0 || round % 5 == 0) damage = 3;
             else damage = 1;
@@ -93,7 +97,7 @@ public class BattleManticore {
                 cityHP--;
             }
             round++;
-        }
+        } while (cityHP > 0);
         System.out.println("The Manticore destroyed the city!");
     }
 }

@@ -1,7 +1,9 @@
 package PlayersGuide.ColoredItems.Items;
 
 public class Sword {
-    public String toString(){
+
+    @Override
+    public String toString() {
         return "sword";
     }
 }

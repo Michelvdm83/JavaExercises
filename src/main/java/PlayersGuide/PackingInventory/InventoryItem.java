@@ -3,9 +3,24 @@ package PlayersGuide.PackingInventory;
 public class InventoryItem {
     private final double weight;
     private final double volume;
-    public InventoryItem(double weight, double volume){
+
+    public InventoryItem(double weight, double volume) {
         this.weight = weight;
         this.volume = volume;
+    }
+
+    @Override
+    public String toString() {
+        String nameString = getClass().getSimpleName();
+        StringBuilder returner = new StringBuilder();
+        for (int i = 0; i < nameString.length(); i++) {
+            char c = nameString.charAt(i);
+            if (i > 0 && Character.isUpperCase(c)) {
+                returner.append(" ");
+            }
+            returner.append(Character.toLowerCase(c));
+        }
+        return returner.toString();
     }
 
     public double getWeight() {
@@ -17,53 +32,40 @@ public class InventoryItem {
     }
 }
 
-class Arrow extends InventoryItem{
+class Arrow extends InventoryItem {
 
     public Arrow() {
         super(0.1, 0.05);
     }
-    public String toString(){
-        return "Arrow";
-    }
 }
-class Bow extends InventoryItem{
-    public Bow(){
+
+class Bow extends InventoryItem {
+    public Bow() {
         super(1.0, 4.0);
     }
-    public String toString(){
-        return "Bow";
-    }
 }
-class Rope extends InventoryItem{
-    public Rope(){
+
+class Rope extends InventoryItem {
+    public Rope() {
         super(1.0, 1.5);
     }
-    public String toString(){
-        return "Rope";
-    }
 }
-class Water extends InventoryItem{
-    public Water(){
+
+class Water extends InventoryItem {
+    public Water() {
         super(2.0, 3.0);
     }
-    public String toString(){
-        return "Water";
-    }
 }
-class FoodRations extends InventoryItem{
-    public FoodRations(){
+
+class FoodRations extends InventoryItem {
+    public FoodRations() {
         super(1.0, 0.5);
     }
-    public String toString(){
-        return "Food rations";
-    }
 }
-class Sword extends InventoryItem{
-    public Sword(){
+
+class Sword extends InventoryItem {
+    public Sword() {
         super(5.0, 3.0);
-    }
-    public String toString(){
-        return "Sword";
     }
 }
 
