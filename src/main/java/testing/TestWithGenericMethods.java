@@ -2,8 +2,8 @@ package testing;
 
 import generic.CommandLine;
 
-import static generic.AnsiColors.ANSI_RED;
-import static generic.AnsiColors.ANSI_RESET;
+import static playersguide.ansicolors.AnsiColors.ANSI_RED;
+import static playersguide.ansicolors.AnsiColors.ANSI_RESET;
 
 public class TestWithGenericMethods {
 
