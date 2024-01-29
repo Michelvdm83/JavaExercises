@@ -1,0 +1,29 @@
+Solo Skeleton
+1
+POTION	HEALTH_POTION
+1
+Skeleton 1	SKELETON	DAGGER
+
+Double Skeleton
+3
+POTION	HEALTH_POTION
+WEAPON	DAGGER
+WEAPON	DAGGER
+2
+Skeleton 1	SKELETON	null
+Skeleton 2	SKELETON	null
+
+Double Stone Amarok
+1
+POTION	HEALTH_POTION
+2
+Stone Amarok 1	STONE_AMAROK	null
+Stone Amarok 2	STONE_AMAROK	null
+
+The Uncoded One
+2
+POTION	HEALTH_POTION
+POTION	HEALTH_POTION
+1
+The Uncoded One	THE_UNCODED_ONE	null
+
