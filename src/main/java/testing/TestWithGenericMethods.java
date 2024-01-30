@@ -7,6 +7,7 @@ import static playersguide.ansicolors.AnsiColors.ANSI_RESET;
 
 public class TestWithGenericMethods {
 
+
     public static void main(String[] args) {
         int multiplier = 5;
         int min = 2;
@@ -23,7 +24,7 @@ public class TestWithGenericMethods {
         String chosenName = CommandLine.askForStringFromMenu("Harry", "Gerard", "Else", "Michel");
         String[] nameList = new String[]{"Harry", "Gerard", "Else", "Michel"};
         String newChosenName = CommandLine.askForStringFromMenu(nameList);
-        System.out.println(name + " " + chosenName + " " + newChosenName);
+        System.out.println(name + " " + chosenName + " " + CommandLine.green.apply(newChosenName));
     }
 
 }
