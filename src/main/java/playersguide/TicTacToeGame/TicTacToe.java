@@ -1,21 +1,23 @@
 package playersguide.TicTacToeGame;
 
 import java.util.Arrays;
-import java.util.Scanner;
+
+import static generic.CommandLine.*;
 
 public class TicTacToe {
     private char[] board;
-    private final Scanner input = new Scanner(System.in);
+    private final char playerXChar = 'X';
+    private final char playerOChar = 'O';
     private String playerX = "X";
     private String playerO = "O";
+    private char roundWinner = ' ';
 
     public TicTacToe() {
-        showBoard();
     }
 
     //to show the board and its values
-    private void showBoard() {
-        System.out.print("""
+    public void showBoardHelp() {
+        System.out.println("""
                  7 | 8 | 9
                 ---+---+---
                  4 | 5 | 6
@@ -26,13 +28,25 @@ public class TicTacToe {
 
     //prints the current state of the board
     private void showCurrentBoard() {
-        System.out.printf("""
+        //just showing the board
+/*        System.out.printf("""
                  %c | %c | %c
                 ---+---+---
                  %c | %c | %c
                 ---+---+---
-                 %c | %c | %c
+                 %c | %c | %c%n
                 """, board[6], board[7], board[8], board[3], board[4], board[5], board[0], board[1], board[2]);
+*/
+        //showing the board with color
+        String currentBoard = String.format("""
+                 %c | %c | %c
+                ---+---+---
+                 %c | %c | %c
+                ---+---+---
+                 %c | %c | %c%n
+                """, board[6], board[7], board[8], board[3], board[4], board[5], board[0], board[1], board[2]);
+        currentBoard = currentBoard.replace(("" + playerXChar), yellow.apply("" + playerXChar)).replace(("" + playerOChar), blue.apply("" + playerOChar));
+        System.out.println(currentBoard);
     }
 
     //creating a new, empty, board, so you don't have to create a new object of TicTacToe each time you want to play
@@ -40,53 +54,94 @@ public class TicTacToe {
         board = new char[]{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
     }
 
+    public void play(boolean bestOfFive) {
+        if (bestOfFive) {
+            int rounds = 5;
+            int xWinCount = 0, oWinCount = 0;
 
-    public void play() {
-        //for best of 5, this would be 1 round
-        //best to rename this to playRound and make another method play() which loops this max 5 times
-        //and when either player has won 3 times, declares the winner
-        createBoard();
-        boolean xWon = false, oWon = false;
-        char currentPlayer = 'X';
-        while (!xWon && !oWon) {
-            showCurrentBoard();
-            String player = currentPlayer == 'X' ? getPlayerX() : getPlayerO();
-            System.out.print(player + ", please enter your next move: ");
-            int nextMove = input.nextInt() - 1;
-            while (!doMove(nextMove, currentPlayer)) {
-                System.out.println("This is not a valid move!");
-                System.out.print("Please choose an empty spot: ");
-                nextMove = input.nextInt() - 1;
-            }
-            if (currentPlayer == 'X') xWon = checkWin(currentPlayer, nextMove);
-            if (currentPlayer == 'O') oWon = checkWin(currentPlayer, nextMove);
-            currentPlayer = player.equals(getPlayerX()) ? 'O' : 'X';
-            boolean emptySpaceLeft = false;
-            for (char c : board) {
-                if (c == ' ') {
-                    emptySpaceLeft = true;
+            for (int currentRound = 1; currentRound <= rounds; currentRound++) {
+                System.out.println("Round: " + currentRound);
+                playRound();
+                if (roundWinner == playerXChar) {
+                    xWinCount++;
+                }
+                if (roundWinner == playerOChar) {
+                    oWinCount++;
+                }
+                if (Math.abs(xWinCount - oWinCount) > (rounds - currentRound)) {
                     break;
                 }
             }
-            if (!emptySpaceLeft) break;
-        }
-        showCurrentBoard();
-        if (!xWon && !oWon) {
-            System.out.println("Board is full without a winner.");
-            System.out.println("Well played! It's a draw!");
+            System.out.println(playerX + " has won " + xWinCount + " rounds.");
+            System.out.println(playerO + " has won " + oWinCount + " rounds.");
+            if (xWinCount == oWinCount) {
+                System.out.println("It's a draw!");
+            } else {
+                System.out.print("Congratulations ");
+
+                //short version:
+                //System.out.print(xWinCount>oWinCount? playerX:playerO);
+                if (xWinCount > oWinCount) {
+                    System.out.print(playerX);
+                }
+                if (oWinCount > xWinCount) {
+                    System.out.print(playerO);
+                }
+
+                System.out.println(". You won!");
+            }
         } else {
-            if (xWon) System.out.println("Congratulations " + getPlayerX() + "!\nYou won!");
-            if (oWon) System.out.println("Congratulations " + getPlayerO() + "!\nYou won!");
+            playRound();
         }
     }
 
-    //enter the move into the current board
-    private boolean doMove(int nextMove, char player) {
-        //check for valid move
+    private void playRound() {
+        createBoard();
+        boolean haveWinner;
+        char currentPlayer = ' ';
+        roundWinner = ' ';
+
+        do {
+            currentPlayer = currentPlayer == playerXChar ? playerOChar : playerXChar;
+            String player = currentPlayer == playerXChar ? playerX : playerO;
+
+            do {
+                showCurrentBoard();
+                int nextMove = askForInt(player + ", please enter your next move: ", 1, 9) - 1;
+
+                if (checkMove(nextMove)) {
+                    board[nextMove] = currentPlayer;
+                    haveWinner = checkWin(currentPlayer, nextMove);
+                    break;
+                } else {
+                    System.out.println("This is not a valid move!");
+                    System.out.println("Please choose an empty spot.");
+                }
+            } while (true);
+
+            if (boardIsFull()) break;
+        } while (!haveWinner);
+
+        showCurrentBoard();
+        if (haveWinner) {
+            String winner = currentPlayer == playerXChar ? getPlayerX() : getPlayerO();
+            System.out.println("Congratulations " + winner + "!\nYou won!");
+            roundWinner = currentPlayer;
+        } else {
+            System.out.println("Board is full without a winner.");
+            System.out.println("Well played! It's a draw!");
+        }
+    }
+
+    private boolean boardIsFull() {
+        return !Arrays.toString(board).contains("  ");
+    }
+
+    //check if the move is legal
+    private boolean checkMove(int nextMove) {
         if (nextMove < 0 || 8 < nextMove || !(board[nextMove] == ' ')) {
             return false;
         }
-        board[nextMove] = player;
         return true;
     }
 
@@ -100,7 +155,7 @@ public class TicTacToe {
             //for each line check if the last move is in it
             //if it is, check if the player wins
             //no need to check a line on which nothing has changed
-            if (Arrays.stream(win).anyMatch(i -> i == lastMove)) {
+            if (Arrays.stream(win).anyMatch(i -> i == lastMove)) {//if(win[0] == lastMove || win[1] == lastMove || win[2] == lastMove)
                 char[] line = {board[win[0]], board[win[1]], board[win[2]]};
                 if (Arrays.equals(line, new char[]{player, player, player})) {
                     return true;

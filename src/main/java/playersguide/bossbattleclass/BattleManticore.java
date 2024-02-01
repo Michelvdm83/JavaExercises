@@ -45,12 +45,11 @@ public class BattleManticore {
     }
 
     private void battle(int distanceOfManticore) {
-        int round = 1;
-        int damage;
 
         System.out.println(singlePlayer ? "Player, are you ready?" : "Player 2, it is your turn.");
 
-        do {
+        for (int round = 1; cityHP > 0; round++) {
+            int damage;
             if (round % 3 == 0 && round % 5 == 0) damage = 10;
             else if (round % 3 == 0 || round % 5 == 0) damage = 3;
             else damage = 1;
@@ -67,8 +66,7 @@ public class BattleManticore {
             } else {
                 cityHP--;
             }
-            round++;
-        } while (cityHP > 0);
+        }
         System.out.println(red.apply("The Manticore destroyed the city!"));
     }
 

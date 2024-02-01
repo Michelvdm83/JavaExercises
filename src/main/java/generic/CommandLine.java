@@ -64,6 +64,11 @@ public class CommandLine {
         return askForInt(1, options.length);
     }
 
+    public static boolean askYesOrNo(String prompt) {
+        System.out.println(prompt);
+        return (askForIntFromMenu("yes", "no") == 1);
+    }
+
     private static String getStringColored(String text, AnsiColors color) {
         return color.getColor() + text + RESET.getColor();
     }
@@ -76,7 +81,3 @@ public class CommandLine {
     public static UnaryOperator<String> purple = s -> getStringColored(s, PURPLE);
     public static UnaryOperator<String> white = s -> getStringColored(s, WHITE);
 }
-//try catch vervangen door if/else
-
-
-

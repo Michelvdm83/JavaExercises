@@ -1,24 +1,28 @@
 package playersguide.TicTacToeGame;
 
-import java.util.Scanner;
+import static generic.CommandLine.askForString;
+import static generic.CommandLine.askYesOrNo;
 
 public class TicTacToeGame {
     public static void main(String[] args) {
         TicTacToe game = new TicTacToe();
-        Scanner input = new Scanner(System.in);
+        game.showBoardHelp();
+
+        boolean ownNames = askYesOrNo("Do you want to set your own playernames?");
+        boolean bestOfFive = askYesOrNo("Do you want to play best out of 5?");
         do {
-            System.out.print("Please enter the name for who plays 'X': ");
-            game.setPlayerX(input.next());
-            System.out.print("Please enter the name for who plays 'O': ");
-            game.setPlayerO(input.next());
+            if (ownNames) {
+                String playerX = askForString("Please enter the name for who plays 'X': ");
+                game.setPlayerX(playerX);
+                String playerY = askForString("Please enter the name for who plays 'O': ");
+                game.setPlayerO(playerY);
+            }
             //just to make it repeatable
             do {
-                game.play();
-                System.out.print("Do you want to play another game together, " + game.getPlayerX() + " and " + game.getPlayerO() + "?");
+                game.play(bestOfFive);
 
-            } while (input.next().equalsIgnoreCase("yes"));
+            } while (askYesOrNo("Do you want to play another game together, " + game.getPlayerX() + " and " + game.getPlayerO() + "?"));
 
-            System.out.print("Do you want to play again with other players? ");
-        } while (input.next().equalsIgnoreCase("yes"));
+        } while (askYesOrNo("Do you want to play again with other players? "));
     }
 }
