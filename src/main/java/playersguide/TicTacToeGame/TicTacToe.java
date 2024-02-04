@@ -107,7 +107,7 @@ public class TicTacToe {
 
             do {
                 showCurrentBoard();
-                int nextMove = askForInt(player + ", please enter your next move: ", 1, 9) - 1;
+                int nextMove = askForInt(player + ", please enter your next move: ", 1, board.length) - 1;
 
                 if (checkMove(nextMove)) {
                     board[nextMove] = currentPlayer;
@@ -139,7 +139,7 @@ public class TicTacToe {
 
     //check if the move is legal
     private boolean checkMove(int nextMove) {
-        if (nextMove < 0 || 8 < nextMove || !(board[nextMove] == ' ')) {
+        if (nextMove < 0 || board.length - 1 < nextMove || !(board[nextMove] == ' ')) {
             return false;
         }
         return true;

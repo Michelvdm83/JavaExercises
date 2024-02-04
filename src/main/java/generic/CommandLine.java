@@ -1,5 +1,7 @@
 package generic;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.function.UnaryOperator;
 
@@ -55,13 +57,64 @@ public class CommandLine {
         return options[choice - 1];
     }
 
+    private static int calculateNrOfLinesForMenu(int nrOfOptions, int longestOptionLength) {
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().getSize().width;
+        int maxOptionsPerLine = screenWidth / longestOptionLength;
+
+        int lines;
+        if (nrOfOptions <= 5) {
+            lines = nrOfOptions;
+        } else if (nrOfOptions / maxOptionsPerLine < 5) {
+            lines = 5;
+        } else {
+            lines = nrOfOptions / maxOptionsPerLine;
+            if (nrOfOptions % maxOptionsPerLine > 0) lines++;
+        }
+        return lines;
+    }
+
     public static int askForIntFromMenu(String... options) {
         if (options.length < 1)
             throw (new IllegalArgumentException("method askForIntFromMenu needs at least 1 argument"));
+
+        var menu = new ArrayList<String>();
+        int longestOptionSize = 0;
         for (int i = 1; i <= options.length; i++) {
-            System.out.println(i + ". " + options[i - 1]);
+            menu.add(i + ". " + options[i - 1]);
+            longestOptionSize = Math.max(longestOptionSize, menu.get(i - 1).length());
+        }
+        longestOptionSize += 2;
+
+        int size = menu.size();
+        int lines = calculateNrOfLinesForMenu(size, longestOptionSize);
+
+        String optionFormat = "%-" + longestOptionSize + "s";
+        for (int i = 0; i < lines; i++) {
+            for (int j = 0; j < size; j += lines) {
+                System.out.printf(optionFormat, menu.get(i + j));
+            }
+            System.out.println();
         }
         return askForInt(1, options.length);
+    }
+
+    public static int askForIntFromMenu(String question, String[] options) {
+        System.out.println(question);
+        return askForIntFromMenu(options);
+    }
+
+    public static <T extends Enum<T>> T askForEnumValueFromEnumMenu(T[] enumValues) {
+        String[] optionsAsStrings = new String[enumValues.length];
+        for (int i = 0; i < enumValues.length; i++) {
+            optionsAsStrings[i] = enumValues[i].toString().toLowerCase().replace("_", " ");
+        }
+        int choice = askForIntFromMenu(optionsAsStrings);
+        return enumValues[choice - 1];
+    }
+
+    public static <T extends Enum<T>> T askForEnumValueFromEnumMenu(String question, T[] enumValues) {
+        System.out.println(question);
+        return askForEnumValueFromEnumMenu(enumValues);
     }
 
     public static boolean askYesOrNo(String prompt) {

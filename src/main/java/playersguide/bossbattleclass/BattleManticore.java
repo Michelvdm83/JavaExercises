@@ -71,10 +71,7 @@ public class BattleManticore {
     }
 
     private void showCurrentState(int currentRound, int expectedDamage) {
-
-        for (int i = 0; i < Toolkit.getDefaultToolkit().getScreenSize().width; i++) {
-            System.out.print("-");
-        }
+        System.out.print("-".repeat(Toolkit.getDefaultToolkit().getScreenSize().width));
         System.out.println();
         System.out.printf("STATUS: Round: %d City: %d/%d Manticore: %d/%d%n"
                 , currentRound, cityHP, CITY_MAX_HP, manticoreHP, MANTICORE_MAX_HP);
